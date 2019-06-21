@@ -3,4 +3,8 @@
  * halfpipe is a trademark of TD Ameritrade IP Company, Inc. All rights reserved.
  */
 
-export const isTruthy = (Boolean as any) as <T>(value: T | null | undefined) => value is T;
+import { isObject, isFunction } from 'lodash';
+
+export function isPromiseLike<T>(obj: any): obj is Promise<T> {
+  return isObject(obj) && isFunction((obj as { then?: Function }).then);
+}

@@ -1,23 +1,37 @@
 {
   "name": "halfpipe",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "A functional library with pipe-able functions",
+  "main": "dist/es5/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "prettier": "prettier \"src/**/*.ts\" \"./*.{ts,json}\"",
+    "prettier:check": "npm run prettier -- --check",
+    "prettier:write": "npm run prettier -- --write",
+    "test": "jest",
+    "build:es5": "tsc --p tsconfig.es5.json",
+    "build:es2015": "tsc --p tsconfig.es2015.json",
+    "build": "npm run build:es5 && npm run build:es2015",
+    "prebuild": "npm run clean",
+    "clean": "rm -rf ./dist",
+    "release": "standard-version"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "functional",
+    "pipe"
+  ],
+  "license": "BSD",
   "dependencies": {
-    "lodash": "^4.17.11",
+    "lodash": "^4.x.x",
     "monet": "^0.9.0",
-    "rxjs": "^6.5.2",
     "tslib": "^1.10.0"
   },
   "devDependencies": {
+    "@types/jest": "^24.0.15",
     "@types/lodash": "^4.14.134",
+    "jest": "^24.8.0",
     "prettier": "^1.18.2",
+    "standard-version": "^6.0.1",
+    "ts-jest": "^24.0.2",
     "typescript": "^3.5.2"
   }
 }

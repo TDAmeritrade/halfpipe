@@ -1,3 +1,8 @@
+/**
+ * Copyright 2019 TD Ameritrade. Released under the terms of the 3-Clause BSD license.  # noqa: E501
+ * halfpipe is a trademark of TD Ameritrade IP Company, Inc. All rights reserved.
+ */
+
 export function pipe<I, O>(
   value: I,
   fn1: (v: I) => any,
@@ -17,24 +22,7 @@ export function pipe<I, O>(
   fn15: (v: any) => any,
   ...fns: ((v: any) => any)[]
 ): O;
-export function pipe<
-  I,
-  I2,
-  I3,
-  I4,
-  I5,
-  I6,
-  I7,
-  I8,
-  I9,
-  I10,
-  I11,
-  I12,
-  I13,
-  I14,
-  I15,
-  O
->(
+export function pipe<I, I2, I3, I4, I5, I6, I7, I8, I9, I10, I11, I12, I13, I14, I15, O>(
   value: I,
   fn1: (v: I) => I2,
   fn2: (v: I2) => I3,
@@ -52,23 +40,7 @@ export function pipe<
   fn14: (v: I14) => I15,
   fn15: (v: I15) => O
 ): O;
-export function pipe<
-  I,
-  I2,
-  I3,
-  I4,
-  I5,
-  I6,
-  I7,
-  I8,
-  I9,
-  I10,
-  I11,
-  I12,
-  I13,
-  I14,
-  O
->(
+export function pipe<I, I2, I3, I4, I5, I6, I7, I8, I9, I10, I11, I12, I13, I14, O>(
   value: I,
   fn1: (v: I) => I2,
   fn2: (v: I2) => I3,
@@ -200,17 +172,8 @@ export function pipe<I, I2, I3, I4, O>(
   fn3: (v: I3) => I4,
   fn4: (v: I4) => O
 ): O;
-export function pipe<I, I2, I3, O>(
-  value: I,
-  fn1: (v: I) => I2,
-  fn2: (v: I2) => I3,
-  fn3: (v: I3) => O
-): O;
-export function pipe<I, I2, O>(
-  value: I,
-  fn1: (v: I) => I2,
-  fn2: (v: I2) => O
-): O;
+export function pipe<I, I2, I3, O>(value: I, fn1: (v: I) => I2, fn2: (v: I2) => I3, fn3: (v: I3) => O): O;
+export function pipe<I, I2, O>(value: I, fn1: (v: I) => I2, fn2: (v: I2) => O): O;
 export function pipe<I, O>(value: I, fn: (v: I) => O): O;
 export function pipe<I>(value: I): I;
 export function pipe(

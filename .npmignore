@@ -1,0 +1,8 @@
+src
+node_modules
+.vscode
+.history
+.tmp
+tsconfig*
+jest.config.js
+.prettierrc
