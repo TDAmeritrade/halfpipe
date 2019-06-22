@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2019 TD Ameritrade. Released under the terms of the 3-Clause BSD license.  # noqa: E501
  * halfpipe is a trademark of TD Ameritrade IP Company, Inc. All rights reserved.
  */
@@ -9,7 +9,7 @@ import { Maybe } from 'monet';
 import { createInvoker } from './utils/createInvoker';
 
 /**
- * Flattens an array using a mapping function.
+ * Flattens an array using a mapping function that returns a new array.
  * @param fn - the mapper function
  * @returns the mapped and flattened array
  * ```typescript
@@ -25,6 +25,7 @@ export function flatMap<T, R>(fn: (val: T, index: number, arr: T[]) => R[]): (ar
 
 /**
  * Flattens an array to a specified depth, defaulting to 1.
+ * @alias flatten
  * @param depth [1] - the depth to flatten the array
  * @returns the flattened array
  * ```typescript
@@ -189,11 +190,12 @@ export function find<T>(fn: (val: T, index: number, arr: T[]) => boolean): (arra
 }
 
 /**
- * Immutably reverese an array.
+ * Immutably reverse an array.
  * @returns the reversed array
  * ```typescript
  * pipe(
- *   [1,2,3]
+ *   [1,2,3],
+ *   Arrays.reverse() // -> [3,2,1]
  * );
  * ```
  */
@@ -201,37 +203,143 @@ export function reverse<T>(): (array: T[]) => T[] {
   return array => [...array].reverse();
 }
 
+/**
+ * Maps an array using a mapper function.
+ * @param fn - the mapper function
+ * @returns the mapped array
+ * ```typescript
+ * pipe(
+ *   ['ab','cde'],
+ *   Arrays.map(str => str.length) // -> [2,3]
+ * );
+ * ```
+ */
 export const map = createInvoker<any[], 'map', any[]>('map') as <T, R>(
   fn: (val: T, index: number, arr: T[]) => R
 ) => (array: T[]) => R[];
 
+/**
+ * Filters an array using a predicate function.
+ * @param fn - the predicate function
+ * @returns the filtered array
+ * ```typescript
+ * pipe(
+ *   [1,2,3,4,5],
+ *   Arrays.filter(num => num < 4) // -> [1,2,3]
+ * );
+ * ```
+ */
 export const filter = createInvoker<any[], 'filter', any[]>('filter') as <T>(
   fn: (val: T, index: number, arr: T[]) => boolean
 ) => (array: T[]) => T[];
 
+/**
+ * Checks if an array contains an element matching the given predicate.
+ * @param fn - the predicate function
+ * @returns whether or not the array contains such an element
+ * ```typescript
+ * pipe(
+ *   [1,2,3,4,5],
+ *   Arrays.some(num => num === 3) // -> true
+ * );
+ * ```
+ */
 export const some = createInvoker<any[], 'some', boolean>('some') as <T>(
   fn: (val: T, index: number, arr: T[]) => boolean
 ) => (array: T[]) => boolean;
 
+/**
+ * Checks whether or not every element in an array matches the given predicate.
+ * @param fn - the predicate function
+ * @returns whether or not every element in the array matches the predicate
+ * ```typescript
+ * pipe(
+ *   ['a','b','c'],
+ *   Arrays.every(str => str.length === 1) // -> true
+ * );
+ * ```
+ */
 export const every = createInvoker<any[], 'every', boolean>('every') as <T>(
   fn: (val: T, index: number, arr: T[]) => boolean
 ) => (array: T[]) => boolean;
 
+/**
+ * Executes a function for each element in an array.
+ * @param fn - the function to execute for each element
+ * ```typescript
+ * pipe(
+ *   [1,2,3],
+ *   Arrays.forEach(val => console.log(val)) // logs: 1, 2, 3
+ * );
+ * ```
+ */
 export const forEach = createInvoker<any[], 'forEach', void>('forEach') as <T>(
   fn: (val: T, index: number, arr: T[]) => any
 ) => (array: T[]) => void;
 
+/**
+ * Sorts an array with an optional sorter function.
+ * @param fn - the function to sort with
+ * @returns the sorted array
+ * ```typescript
+ * pipe(
+ *   [4,1,3,2],
+ *   Arrays.sort() // -> [1,2,3,4]
+ * );
+ * ```
+ */
 export const sort = createInvoker<any[], 'sort', any[]>('sort') as <T>(
-  fn: (val: T, index: number, arr: T[]) => number
+  fn?: (val: T, index: number, arr: T[]) => number
 ) => (array: T[]) => T[];
 
-export const concat = createInvoker<any[], 'concat', any[]>('concat') as <T>(arr: T[]) => (array: T[]) => T[];
+/**
+ * Concatenates one or more array with a given array.
+ * @param arrays - one or more array to add to the array
+ * @returns the concatenated array
+ * ```typescript
+ * pipe(
+ *   [1,2],
+ *   Arrays.concat([3,4], [5,6]) // -> [1,2,3,4,5,6]
+ * );
+ * ```
+ */
+export const concat = createInvoker<any[], 'concat', any[]>('concat') as <T>(...arrays: T[][]) => (array: T[]) => T[];
 
+/**
+ * Joins an array with an optional separator.
+ * @param separator - the string to use to join the array values
+ * @returns the joined string
+ * ```typescript
+ * pipe(
+ *   ['a','b','c'],
+ *   Arrays.join(',') // -> 'a,b,c'
+ * );
+ * ```
+ */
 export const join = createInvoker<any[], 'join', string>('join') as <T>(separator?: string) => (array: T[]) => string;
 
-export const fill = createInvoker<any[], 'fill', any[]>('fill') as <T>(val: T) => (array: T[]) => T[];
-
+/**
+ * Creates an array from an array-like object.
+ * @param arrayLike - An array-like object to convert to an array
+ * @returns the created array
+ */
 export const from = Array.from;
-export const isArray = Array.isArray;
+/**
+ * Checks if the given object is an array.
+ * @param arg - the object to check
+ * @returns whether or not the object is an array
+ * ```typescript
+ * pipe(
+ *   [1,2,3],
+ *   Arrays.isArray() // -> true
+ * )
+ * ```
+ */
+export const isArray = () => Array.isArray;
+/**
+ * Returns a new array from a set of elements.
+ * @param items - A set of elements to include in the new array object.
+ * @returns the created array
+ */
 export const of = Array.of;
 export { flat as flatten };

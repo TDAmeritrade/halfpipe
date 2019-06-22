@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2019 TD Ameritrade. Released under the terms of the 3-Clause BSD license.  # noqa: E501
  * halfpipe is a trademark of TD Ameritrade IP Company, Inc. All rights reserved.
  */
@@ -176,6 +176,23 @@ export function pipe<I, I2, I3, O>(value: I, fn1: (v: I) => I2, fn2: (v: I2) => 
 export function pipe<I, I2, O>(value: I, fn1: (v: I) => I2, fn2: (v: I2) => O): O;
 export function pipe<I, O>(value: I, fn: (v: I) => O): O;
 export function pipe<I>(value: I): I;
+
+/**
+ * A function for composing functions from the top down. This is a functional placeholder for
+ * the pipeline (|>) spec.
+ * @param value - the initial value to pipe
+ * @param fns - any number of functions to pipe the previous value into
+ * @returns the result of piping the initial value through each consecutive function
+ * ```typescript
+ * pipe(
+ *   { strings: [ 'hello', 'world' ] },
+ *   Objects.get('strings'),
+ *   Maybes.flatMap(Arrays.get(1)),
+ *   Maybes.filter(str => str.length > 3),
+ *   Maybes.defaultTo('no') // -> 'world'
+ * );
+ * ```
+ */
 export function pipe(
   value: any,
   fn1?: Function,
