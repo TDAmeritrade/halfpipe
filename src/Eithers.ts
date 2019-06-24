@@ -84,7 +84,7 @@ export function combine<E, T>(err: E): (eithers: Either<E, T>[]) => Either<E, T[
  *
  * pipe(
  *   Eithers.Left(new Error()),
- *   Eithers.orThrow() // throws Error
+ *   Eithers.orThrow() // throws: Error
  * );
  * ```
  */
@@ -120,7 +120,7 @@ export function toValue<L, R>(): (either: Either<L, R>) => L | R {
  * Performs a catamorphism on the Either.
  * @param leftFn - the function to unwrap the left side
  * @param rightFn - the function to unwrap the right side
- * @returns the result of the catamorphism
+ * @returns the result of unwrapping the Either
  * ```typescript
  * pipe(
  *   Eithers.Right(5),
@@ -344,9 +344,88 @@ export const flatMapBoth = cata as <L, R, L1 = L, R1 = R, L2 = L1, R2 = R1>(
   rightFn: (val: R) => Either<L2, R2>
 ) => (either: Either<L, R>) => Either<L1, R1> | Either<L2, R2>;
 
+/**
+ * Performs a map on the right side of the Either with the given mapper function.
+ * @alias map
+ * @param fn - the mapper function
+ * @returns an unchanged Left or a mapped Right
+ * ```typescript
+ * pipe(
+ *   Eithers.Right('test'),
+ *   Eithers.rightMap(str => str.length) // -> Right(4)
+ * );
+ * ```
+ */
 export const rightMap = map;
+
+/**
+ * Performs a flatMap on the right side of the Either with the given mapper function that returns a new Either.
+ * @alias flatMap
+ * @param fn - the mapper function
+ * @returns an unchanged Left or a flatMapped Right
+ * ```typescript
+ * pipe(
+ *   Eithers.Right(5),
+ *   Eithers.rightFlatMap(val => Either.Left(val)) // -> Left(5)
+ * );
+ * ```
+ */
 export const rightFlatMap = flatMap;
+
+/**
+ * Performs a map on both sides of an Either with the given mapper functions.
+ * @alias bimap
+ * @param leftFn - the mapper function for the left side
+ * @param rightFn - the mapper function for the right side
+ * @returns a Left mapped with the left mapper or a Right mapped with the right mapper
+ * ```typescript
+ * pipe(
+ *   Eithers.Left('test'),
+ *   Eithers.mapBoth(
+ *     str => str.length, // -> Left(4)
+ *     num => num + 2
+ *   )
+ * );
+ *
+ * pipe(
+ *   Eithers.Right(5),
+ *   Eithers.mapBoth(
+ *     str => str.length,
+ *     num => num + 2 // -> Right(7)
+ *   )
+ * );
+ * ```
+ */
 export const mapBoth = bimap;
+
+/**
+ * Flips the sides of an Either.
+ * @alias swap
+ * @returns a Right if the Either was a Left and a Left if the Either was a Right
+ * ```typescript
+ * pipe(
+ *   Eithers.Left(new Error()),
+ *   Eithers.flip() // -> Right(Error)
+ * );
+ *
+ * pipe(
+ *   Eithers.Right(5),
+ *   Eithers.flip() // -> Left(5)
+ * );
+ * ```
+ */
 export const flip = swap;
-export const Left = Either.Left;
-export const Right = Either.Right;
+
+/**
+ * Creates a Left with the given value.
+ * @param val - the value to use as the Left side
+ * @returns a Left of the given value
+ */
+export const Left = Either.Left as <L, R>(val: L) => Either<L, R>;
+
+/**
+ * Creates a Right with the given value.
+ * @param val - the value to use as the Right side
+ * @returns a Right of the given value
+ */
+export const Right = Either.Right as <L, R>(val: R) => Either<L, R>;
