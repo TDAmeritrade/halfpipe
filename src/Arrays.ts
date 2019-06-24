@@ -204,6 +204,21 @@ export function reverse<T>(): (array: T[]) => T[] {
 }
 
 /**
+ * Immutably sorts an array with an optional sorter function.
+ * @param fn - the function to sort with
+ * @returns the sorted array
+ * ```typescript
+ * pipe(
+ *   [4,1,3,2],
+ *   Arrays.sort() // -> [1,2,3,4]
+ * );
+ * ```
+ */
+export function sort<T>(fn?: (a: T, b: T) => number): (array: T[]) => T[] {
+  return array => [...array].sort(fn);
+}
+
+/**
  * Maps an array using a mapper function.
  * @param fn - the mapper function
  * @returns the mapped array
@@ -276,21 +291,6 @@ export const every = createInvoker<any[], 'every', boolean>('every') as <T>(
 export const forEach = createInvoker<any[], 'forEach', void>('forEach') as <T>(
   fn: (val: T, index: number, arr: T[]) => any
 ) => (array: T[]) => void;
-
-/**
- * Sorts an array with an optional sorter function.
- * @param fn - the function to sort with
- * @returns the sorted array
- * ```typescript
- * pipe(
- *   [4,1,3,2],
- *   Arrays.sort() // -> [1,2,3,4]
- * );
- * ```
- */
-export const sort = createInvoker<any[], 'sort', any[]>('sort') as <T>(
-  fn?: (val: T, index: number, arr: T[]) => number
-) => (array: T[]) => T[];
 
 /**
  * Concatenates one or more array with a given array.

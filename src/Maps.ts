@@ -5,6 +5,7 @@
 
 import { createInvoker } from './utils/createInvoker';
 import { Maybe } from 'monet';
+import { property } from 'lodash';
 
 /**
  * Gets the value of the map at the specified key.
@@ -45,9 +46,7 @@ export function get<K, V>(key: K): (map: Map<K, V>) => Maybe<V> {
  * );
  * ```
  */
-export function size<K, V>(): (set: Map<K, V>) => number {
-  return map => map.size;
-}
+export const size = (() => property<Map<any, any>, number>('size')) as <K, V>() => (map: Map<K, V>) => number;
 
 /**
  * Gets the keys of the map.
@@ -62,7 +61,9 @@ export function size<K, V>(): (set: Map<K, V>) => number {
  * );
  * ```
  */
-export const keys = createInvoker<Map<any, any>, 'keys', any[]>('keys') as <K, V>() => (map: Map<K, V>) => K[];
+export function keys<K, V>(): (map: Map<K, V>) => K[] {
+  return map => [...map.keys()];
+}
 
 /**
  * Gets the values of the map.
@@ -77,7 +78,9 @@ export const keys = createInvoker<Map<any, any>, 'keys', any[]>('keys') as <K, V
  * );
  * ```
  */
-export const values = createInvoker<Map<any, any>, 'values', any[]>('values') as <K, V>() => (map: Map<K, V>) => V[];
+export function values<K, V>(): (map: Map<K, V>) => V[] {
+  return map => [...map.values()];
+}
 
 /**
  * Gets the entries of the map.
@@ -92,9 +95,9 @@ export const values = createInvoker<Map<any, any>, 'values', any[]>('values') as
  * );
  * ```
  */
-export const entries = createInvoker<Map<any, any>, 'entries', [any, any][]>('entries') as <K, V>() => (
-  map: Map<K, V>
-) => [K, V][];
+export function entries<K, V>(): (map: Map<K, V>) => [K, V][] {
+  return map => [...map.entries()];
+}
 
 /**
  * Checks whether the map contains a given key.

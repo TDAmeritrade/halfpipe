@@ -35,7 +35,7 @@ export function attempt<T, E = Error>(fn: () => T): Either<E, T> {
  * Eithers.fromNull(new Error(), 5); // -> Right(5)
  * ```
  */
-export function fromNull<E, T>(err: E, value: T | null): Either<E, T> {
+export function fromNull<E, T>(err: E, value: T | null | undefined): Either<E, T> {
   return value == null ? Either.Left(err) : Either.Right(value);
 }
 

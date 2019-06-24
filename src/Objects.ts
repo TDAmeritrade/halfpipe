@@ -5,6 +5,7 @@
 
 import { Maybe } from 'monet';
 import { values as _values, entries as _entries } from 'lodash';
+import { createInvoker } from './utils/createInvoker';
 
 /**
  * Gets the value of an object at the specified key.
@@ -62,3 +63,18 @@ export function values<T extends object>(): (obj: T) => T[keyof T][] {
 export function entries<T extends object>(): (obj: T) => [keyof T, T[keyof T]][] {
   return obj => _entries(obj) as any;
 }
+
+/**
+ * Checks whether the object has a property.
+ * @param key - the key to check
+ * @returns true if the object has own property for the given key
+ * ```typescript
+ * pipe(
+ *   { x: number },
+ *   Objects.has('x') // -> true
+ * );
+ * ```
+ */
+export const has = createInvoker<Object, 'hasOwnProperty', any>('hasOwnProperty') as <T>(
+  key: any
+) => (obj: T) => boolean;

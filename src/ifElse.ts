@@ -57,7 +57,7 @@ export function ifElse<V, R1, R2 = R1>(
  *
  * pipe(
  *   2,
- *   ifElse(
+ *   ifThen(
  *     num => num > 3,
  *     num => num / 2
  *   ) // -> 2

@@ -24,6 +24,7 @@ const _catch = createInvoker<Promise<any>, 'catch', Promise<any>>('catch') as <A
 /**
  * Registers a handler for the Promise.
  * @param fn - the handler
+ * @param catchFn - the optional catch handler
  * @returns a Promise for the completion of the callback
  * ```typescript
  * pipe(
@@ -33,7 +34,8 @@ const _catch = createInvoker<Promise<any>, 'catch', Promise<any>>('catch') as <A
  * ```
  */
 export const then = createInvoker<Promise<any>, 'then', Promise<any>>('then') as <A, B = A>(
-  fn: (val: A) => B | Promise<B>
+  fn: (val: A) => B | Promise<B>,
+  catchFn?: (err: any) => B | Promise<B>
 ) => (promise: Promise<A>) => Promise<B>;
 
 /**
@@ -41,28 +43,28 @@ export const then = createInvoker<Promise<any>, 'then', Promise<any>>('then') as
  * @param values - An array of Promises
  * @returns a new Promise
  */
-export const all = Promise.all;
+export const all = Promise.all.bind(Promise);
 
 /**
  * Creates a Promise that is resolved or rejected when any of the provided Promises are resolved or rejected.
  * @param values - An array of Promises
  * @returns a new Promise
  */
-export const race = Promise.race;
+export const race = Promise.race.bind(Promise);
 
 /**
  * Creates a new resolved promise for the provided value.
  * @param value - A promise
  * @returns a promise whose internal state matches the provided promise
  */
-export const resolve = Promise.resolve;
+export const resolve = Promise.resolve.bind(Promise);
 
 /**
  * Creates a new rejected promise for the provided reason.
  * @param reason - The reason the promise was rejected.
  * @returns a new rejected Promise.
  */
-export const reject = Promise.reject;
+export const reject = Promise.reject.bind(Promise);
 
 /**
  * Determines whether or not an object is promise-like (i.e. "thenable").
