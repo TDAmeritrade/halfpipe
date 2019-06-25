@@ -17,7 +17,8 @@
   },
   "keywords": [
     "functional",
-    "pipe"
+    "pipe",
+    "pipeline"
   ],
   "license": "BSD",
   "dependencies": {
