@@ -17,7 +17,7 @@ import { createInvoker } from './utils/createInvoker';
  * );
  * ```
  */
-export const size = (() => property<Set<any>, number>('size')) as <T>() => (set: Set<T>) => number;
+export const size = (() => property<Set<any>, number>('size')) as <T>(noArg?: never) => (set: Set<T>) => number;
 
 /**
  * Checks whether the set contains a given element.

@@ -1,382 +1,698 @@
-import * as _ from 'lodash';
-import { Maybe } from 'monet';
+import 'jest';
 
 import * as Maybes from './Maybes';
+import { pipe } from './pipe';
 
 describe('Maybes', () => {
-  describe('when getting a default value', () => {
-    describe('and when there is a value', () => {
-      it('should return the value', () => {
-        expect(Maybes.defaultTo(15)(Maybe.Some(20))).toBe(20);
+  describe('combine', () => {
+    describe('when all are Somes', () => {
+      it('should return a Some', () => {
+        const result = Maybes.combine(Maybes.Some(1), Maybes.Some('a'), Maybes.Some(true));
+
+        expect(result.isSome()).toBeTruthy();
+        expect(result.some()).toEqual([1, 'a', true]);
       });
     });
 
-    describe('and when there is not a value', () => {
-      it('should return the default value', () => {
-        expect(Maybes.defaultTo(15)(Maybe.None())).toBe(15);
-      });
-    });
-  });
+    describe('when one is None', () => {
+      it('should return a None', () => {
+        const result = Maybes.combine(Maybes.Some(1), Maybes.None(), Maybes.Some(true));
 
-  describe('when filtering', () => {
-    describe('when the value matches', () => {
-      it('should return the value', () => {
-        const result = Maybes.filter(() => true)(Maybe.Some(15));
-
-        expect(result.isSome()).toBeTruthy;
-        expect(result.some()).toBe(15);
-      });
-    });
-
-    describe('and when the value does not match', () => {
-      it('should return none', () => {
-        const result = Maybes.filter(() => false)(Maybe.Some(15));
-
-        expect(result.isNone()).toBeTruthy;
+        expect(result.isNone()).toBeTruthy();
       });
     });
   });
 
-  describe('when getting a value of null', () => {
-    describe('and when there is a value', () => {
-      it('should return the value', () => {
-        expect(Maybes.orNull()(Maybe.Some(20))).toBe(20);
+  describe('combineFrom/fromNulls', () => {
+    describe('when all are non-null', () => {
+      it('should return a Some', () => {
+        const result = Maybes.fromNulls(1, 'a', true);
+
+        expect(result.isSome()).toBeTruthy();
+        expect(result.some()).toEqual([1, 'a', true]);
       });
     });
 
-    describe('and when there is not a value', () => {
-      it('should return the default value', () => {
-        expect(Maybes.orNull()(Maybe.None())).toBeNull;
+    describe('when one is null', () => {
+      it('should return a None', () => {
+        const result = Maybes.fromNulls(1, null, true);
+
+        expect(result.isNone()).toBeTruthy();
       });
     });
   });
 
-  describe('when determining if a maybe is a some', () => {
-    describe('when some', () => {
-      it('should return true', () => {
-        expect(Maybes.isSome()(Maybe.Some(123))).toBeTruthy;
+  describe('tap/ifPresent', () => {
+    describe('when given a Some', () => {
+      it('should execute callback', () => {
+        const fn = jest.fn();
+        const result = pipe(
+          Maybes.Some(5),
+          Maybes.tap(fn)
+        );
+
+        expect(fn).toBeCalledWith(5);
+        expect(result.isSome()).toBeTruthy();
+        expect(result.some()).toEqual(5);
       });
     });
 
-    describe('when none', () => {
+    describe('when given a None', () => {
+      it('should do nothing', () => {
+        const fn = jest.fn();
+        const result = pipe(
+          Maybes.None(),
+          Maybes.tap(fn)
+        );
+
+        expect(fn).toBeCalledTimes(0);
+        expect(result.isNone()).toBeTruthy();
+      });
+    });
+  });
+
+  describe('orThrow', () => {
+    describe('when given a Some', () => {
+      it('should return the value', () => {
+        expect(
+          pipe(
+            Maybes.Some(4),
+            Maybes.orThrow(new Error())
+          )
+        ).toEqual(4);
+      });
+    });
+
+    describe('when given a None', () => {
+      it('should throw the error', () => {
+        const err = new Error();
+
+        expect(() =>
+          pipe(
+            Maybes.None(),
+            Maybes.orThrow(() => err)
+          )
+        ).toThrowError(err);
+      });
+    });
+  });
+
+  describe('toBoolean', () => {
+    describe('when given a Some', () => {
+      describe('and not given a mapper function', () => {
+        it('should return true', () => {
+          expect(
+            pipe(
+              Maybes.Some(123),
+              Maybes.toBoolean()
+            )
+          ).toBeTruthy();
+        });
+      });
+
+      describe('and the mapper function exists', () => {
+        it('should correctly map to a boolean', () => {
+          expect(
+            pipe(
+              Maybes.Some(3),
+              Maybes.toBoolean(num => num > 2)
+            )
+          ).toBeTruthy();
+
+          expect(
+            pipe(
+              Maybes.Some(3),
+              Maybes.toBoolean(num => num > 4)
+            )
+          ).toBeFalsy();
+        });
+      });
+    });
+
+    describe('when given a None', () => {
       it('should return false', () => {
-        expect(Maybes.isSome()(Maybe.None())).toBe(false);
+        expect(
+          pipe(
+            Maybes.None(),
+            Maybes.toBoolean()
+          )
+        ).toBeFalsy();
       });
     });
   });
 
-  describe('when determining if a maybe is a none', () => {
-    describe('when some', () => {
-      it('should return false', () => {
-        expect(Maybes.isNone()(Maybe.Some(123))).toBe(false);
-      });
-    });
+  describe('orSomeWith/defaultWith', () => {
+    it('should correctly default', () => {
+      expect(
+        pipe(
+          Maybes.None(),
+          Maybes.defaultWith(() => 5)
+        )
+      ).toEqual(5);
 
-    describe('when none', () => {
-      it('should return true', () => {
-        expect(Maybes.isNone()(Maybe.None())).toBeTruthy;
-      });
-    });
-  });
-
-  describe('when flat mapping from a value', () => {
-    describe('and when the value is null', () => {
-      it('should return none', () => {
-        const result = Maybes.flatMapFrom(value => null)(Maybe.Some(1));
-
-        expect(result.isNone()).toBeTruthy;
-      });
-    });
-
-    describe('and when the value is not null', () => {
-      it('should return some', () => {
-        const result = Maybes.flatMapFrom(value => 2)(Maybe.Some(1));
-
-        expect(result.isSome()).toBeTruthy;
-        expect(result.some()).toBe(2);
-      });
+      expect(
+        pipe(
+          Maybes.Some(3),
+          Maybes.defaultWith(() => 5)
+        )
+      ).toEqual(3);
     });
   });
 
-  describe('when defaulting a value', () => {
-    describe('when none', () => {
-      it('should return the default', () => {
-        expect(Maybes.defaultTo(123)(Maybe.None())).toBe(123);
-      });
-    });
+  describe('orElseWith', () => {
+    it('should correctly default', () => {
+      const result1 = pipe(
+        Maybes.None<number>(),
+        Maybes.orElseWith(() => Maybes.Some(3))
+      );
 
-    describe('when some', () => {
-      it('should return the default', () => {
-        expect(Maybes.defaultTo(123)(Maybe.Some(555))).toBe(555);
-      });
-    });
-  });
+      const result2 = pipe(
+        Maybes.Some(2),
+        Maybes.orElseWith(() => Maybes.Some(3))
+      );
 
-  describe('when defaulting with a factory', () => {
-    describe('when none', () => {
-      it('should return the default', () => {
-        expect(Maybes.defaultWith(() => 123)(Maybe.None())).toBe(123);
-      });
-    });
-
-    describe('when some', () => {
-      it('should return the default', () => {
-        expect(Maybes.defaultWith(() => 123)(Maybe.Some(555))).toBe(555);
-      });
+      expect(result1.isSome()).toBeTruthy();
+      expect(result1.some()).toEqual(3);
+      expect(result2.isSome()).toBeTruthy();
+      expect(result2.some()).toEqual(2);
     });
   });
 
-  describe('when using an else path from a value', () => {
-    describe('when none', () => {
-      it('should return the else maybe', () => {
-        const result = Maybes.orElseFrom(() => 123)(Maybe.None());
+  describe('orElseFrom', () => {
+    it('should correctly default', () => {
+      const result1 = pipe(
+        Maybes.None<number>(),
+        Maybes.orElseFrom(() => 3)
+      );
 
-        expect(result.isSome()).toBeTruthy;
-        expect(result.some()).toBe(123);
-      });
-    });
+      const result2 = pipe(
+        Maybes.None<number>(),
+        Maybes.orElseFrom(() => null as any)
+      );
 
-    describe('when some', () => {
-      it('should return the original maybe', () => {
-        const result = Maybes.orElseFrom(() => 123)(Maybe.Some(555));
+      const result3 = pipe(
+        Maybes.Some(2),
+        Maybes.orElseFrom(() => 4)
+      );
 
-        expect(result.isSome()).toBeTruthy;
-        expect(result.some()).toBe(555);
-      });
-    });
-  });
-
-  describe('when using an else path', () => {
-    describe('when none', () => {
-      it('should return the else maybe', () => {
-        const result = Maybes.orElseWith(() => Maybe.Some(123))(Maybe.None());
-
-        expect(result.isSome()).toBeTruthy;
-        expect(result.some()).toBe(123);
-      });
-    });
-
-    describe('when some', () => {
-      it('should return the original maybe', () => {
-        const result = Maybes.orElseWith(() => Maybe.Some(123))(Maybe.Some(555));
-
-        expect(result.isSome()).toBeTruthy;
-        expect(result.some()).toBe(555);
-      });
+      expect(result1.isSome()).toBeTruthy();
+      expect(result1.some()).toEqual(3);
+      expect(result2.isNone()).toBeTruthy();
+      expect(result3.isSome()).toBeTruthy();
+      expect(result3.some()).toEqual(2);
     });
   });
 
-  describe('when using catamorphism', () => {
-    describe('when none', () => {
-      it('should return the none predicate result', () => {
-        const result = Maybes.cata(() => 123, () => 555)(Maybe.None());
+  describe('map/flatMapFrom', () => {
+    it('should map correctly', () => {
+      const result1 = pipe(
+        Maybes.Some(3),
+        Maybes.map(num => num * 2)
+      );
 
-        expect(result).toBe(123);
-      });
-    });
+      const result2 = pipe(
+        Maybes.None<number>(),
+        Maybes.map(val => val + 2)
+      );
 
-    describe('when some', () => {
-      it('should return the original maybe', () => {
-        const result = Maybes.cata(() => 123, () => 555)(Maybe.Some(true));
+      const result3 = pipe(
+        Maybes.Some({ a: 2 } as any),
+        Maybes.map(obj => obj.b)
+      );
 
-        expect(result).toBe(555);
-      });
+      expect(result1.isSome()).toBeTruthy();
+      expect(result1.some()).toEqual(6);
+      expect(result2.isNone()).toBeTruthy();
+      expect(result3.isNone()).toBeTruthy();
     });
   });
 
-  describe('when using an or throw', () => {
-    let error;
+  describe('cata', () => {
+    let someFn: (str: string) => string;
+    let noneFn: () => string;
 
     beforeEach(() => {
-      error = new Error('test');
+      someFn = jest.fn(() => 'some');
+      noneFn = jest.fn(() => 'none');
     });
 
-    describe('when none', () => {
-      it('should throw a constant error', () => {
-        expect(() => Maybes.orThrow(error)(Maybe.None())).toThrow(error);
-      });
+    describe('when given a Some', () => {
+      it('should unwrap with the correct function', () => {
+        const result = pipe(
+          Maybes.Some('test'),
+          Maybes.cata(noneFn, someFn)
+        );
 
-      it('should throw an error returned by a function', () => {
-        expect(() => Maybes.orThrow(() => error)(Maybe.None())).toThrow(error);
-      });
-    });
-
-    describe('when some', () => {
-      it('should return the value', () => {
-        const fn = () => Maybes.orThrow(error)(Maybe.Some(true));
-
-        expect(fn).not.toThrow();
-
-        const result = fn();
-
-        expect(result).toBeTruthy;
-      });
-    });
-  });
-
-  describe('when casting to boolean', () => {
-    describe('and given a maybe', () => {
-      describe('when none', () => {
-        it('should return false', () => {
-          expect(Maybes.toBoolean()(Maybe.None())).toBe(false);
-        });
-      });
-
-      describe('when some', () => {
-        it('should return true', () => {
-          expect(Maybes.toBoolean()(Maybe.Some('test'))).toBeTruthy;
-        });
+        expect(result).toEqual('some');
+        expect(someFn).toBeCalledWith('test');
       });
     });
 
-    describe('and given a predicate', () => {
-      describe('and the resulting function is called with a maybe', () => {
-        let func;
+    describe('when given a None', () => {
+      it('should unwrap with the correct function', () => {
+        const result = pipe(
+          Maybes.None<any>(),
+          Maybes.cata(noneFn, someFn)
+        );
 
-        beforeEach(() => {
-          func = Maybes.toBoolean(value => value === 'test');
-        });
-
-        describe('when some', () => {
-          describe('and predicate is true', () => {
-            it('should return true', () => {
-              expect(func(Maybe.Some('test'))).toBeTruthy;
-            });
-          });
-
-          describe('and predicate is false', () => {
-            it('should return false', () => {
-              expect(func(Maybe.Some('nope'))).toBe(false);
-            });
-          });
-        });
-
-        describe('when none', () => {
-          it('should return false', () => {
-            expect(func(Maybe.None())).toBe(false);
-          });
-        });
+        expect(result).toEqual('none');
+        expect(noneFn).toBeCalledTimes(1);
       });
     });
   });
 
-  describe('when combining multiple values into a maybe', () => {
-    describe('and all values exist', () => {
-      it('should result in a some of an array', () => {
-        const result = Maybes.combineFrom('hello', true, 2);
+  describe('filter', () => {
+    it('should filter correctly', () => {
+      const result1 = pipe(
+        Maybes.None<number>(),
+        Maybes.filter(num => num > 4)
+      );
 
-        expect(result.isSome()).toBeTruthy;
-        expect(result.some()).toEqual(['hello', true, 2]);
-      });
-    });
+      const result2 = pipe(
+        Maybes.Some(3),
+        Maybes.filter(num => num > 4)
+      );
 
-    describe('and one value does not exist', () => {
-      it('should result in a none', () => {
-        expect(Maybes.combineFrom('a', null, false).isNone()).toBeTruthy;
-      });
+      const result3 = pipe(
+        Maybes.Some(5),
+        Maybes.filter(num => num > 4)
+      );
+
+      expect(result1.isNone()).toBeTruthy();
+      expect(result2.isNone()).toBeTruthy();
+      expect(result3.isSome()).toBeTruthy();
+      expect(result3.some()).toEqual(5);
     });
   });
 
-  describe('when determining if 2 maybes are equal', () => {
-    describe('and when they are both nones', () => {
+  describe('unless', () => {
+    it('should filter correctly', () => {
+      const result1 = pipe(
+        Maybes.None<number>(),
+        Maybes.unless(num => num > 4)
+      );
+
+      const result2 = pipe(
+        Maybes.Some(3),
+        Maybes.unless(num => num > 4)
+      );
+
+      const result3 = pipe(
+        Maybes.Some(5),
+        Maybes.unless(num => num > 4)
+      );
+
+      expect(result1.isNone()).toBeTruthy();
+      expect(result2.isSome()).toBeTruthy();
+      expect(result2.some()).toEqual(3);
+      expect(result3.isNone()).toBeTruthy();
+    });
+  });
+
+  describe('flatMap', () => {
+    it('should flatMap correctly', () => {
+      const result1 = pipe(
+        Maybes.None<number>(),
+        Maybes.flatMap(num => (num === 2 ? Maybes.None() : Maybes.Some(num * 2)))
+      );
+
+      const result2 = pipe(
+        Maybes.Some(3),
+        Maybes.flatMap(num => (num === 2 ? Maybes.None() : Maybes.Some(num * 2)))
+      );
+
+      const result3 = pipe(
+        Maybes.Some(2),
+        Maybes.flatMap(num => (num === 2 ? Maybes.None() : Maybes.Some(num * 2)))
+      );
+
+      expect(result1.isNone()).toBeTruthy();
+      expect(result2.isSome()).toBeTruthy();
+      expect(result2.some()).toEqual(6);
+      expect(result3.isNone()).toBeTruthy();
+    });
+  });
+
+  describe('orNull', () => {
+    it('should get or default correctly', () => {
+      const result1 = pipe(
+        Maybes.None<number>(),
+        Maybes.orNull()
+      );
+
+      const result2 = pipe(
+        Maybes.Some(3),
+        Maybes.orNull()
+      );
+
+      expect(result1).toBeNull();
+      expect(result2).toEqual(3);
+    });
+  });
+
+  describe('orUndefined', () => {
+    it('should get or default correctly', () => {
+      const result1 = pipe(
+        Maybes.None<number>(),
+        Maybes.orUndefined()
+      );
+
+      const result2 = pipe(
+        Maybes.Some(3),
+        Maybes.orUndefined()
+      );
+
+      expect(result1).toBeUndefined();
+      expect(result2).toEqual(3);
+    });
+  });
+
+  describe('toEither', () => {
+    it('should convert to an Either correctly', () => {
+      const result1 = pipe(
+        Maybes.None<number>(),
+        Maybes.toEither('left side')
+      );
+
+      const result2 = pipe(
+        Maybes.Some(4),
+        Maybes.toEither('left side')
+      );
+
+      expect(result1.isLeft()).toBeTruthy();
+      expect(result1.left()).toEqual('left side');
+      expect(result2.isRight()).toBeTruthy();
+      expect(result2.right()).toEqual(4);
+    });
+  });
+
+  describe('orSome/defaultTo', () => {
+    it('should get or default correctly', () => {
+      const result1 = pipe(
+        Maybes.None<number>(),
+        Maybes.defaultTo(4)
+      );
+
+      const result2 = pipe(
+        Maybes.Some(3),
+        Maybes.defaultTo(4)
+      );
+
+      expect(result1).toEqual(4);
+      expect(result2).toEqual(3);
+    });
+  });
+
+  describe('orElse', () => {
+    it('should correctly default', () => {
+      const result1 = pipe(
+        Maybes.None<number>(),
+        Maybes.orElse(Maybes.Some(3))
+      );
+
+      const result2 = pipe(
+        Maybes.Some(2),
+        Maybes.orElse(Maybes.Some(3))
+      );
+
+      expect(result1.isSome()).toBeTruthy();
+      expect(result1.some()).toEqual(3);
+      expect(result2.isSome()).toBeTruthy();
+      expect(result2.some()).toEqual(2);
+    });
+  });
+
+  describe('isSome', () => {
+    describe('when given a Some', () => {
       it('should return true', () => {
-        expect(Maybes.isEqual(Maybes.None(), Maybes.None())).toBeTruthy;
+        expect(
+          pipe(
+            Maybes.Some(4),
+            Maybes.isSome()
+          )
+        ).toBeTruthy();
       });
     });
 
-    describe('and when they are the same instance', () => {
-      it('should return true', () => {
-        const maybe = Maybes.Some(123);
-
-        expect(Maybes.isEqual(maybe, maybe)).toBeTruthy;
-      });
-    });
-
-    describe('and when their values are equal', () => {
-      it('should return true', () => {
-        expect(Maybes.isEqual(Maybes.Some(123), Maybes.Some(123))).toBeTruthy;
-      });
-    });
-
-    describe('and when their values are not equal', () => {
+    describe('when given a None', () => {
       it('should return false', () => {
-        expect(Maybes.isEqual(Maybes.Some(555), Maybes.Some(123))).toBe(false);
+        expect(
+          pipe(
+            Maybes.None<number>(),
+            Maybes.isSome()
+          )
+        ).toBeFalsy();
       });
     });
+  });
 
-    describe('and when one is none and the other is some', () => {
+  describe('isNone', () => {
+    describe('when given a Some', () => {
       it('should return false', () => {
-        expect(Maybes.isEqual(Maybes.Some(555), Maybes.None())).toBe(false);
+        expect(
+          pipe(
+            Maybes.Some(4),
+            Maybes.isNone()
+          )
+        ).toBeFalsy();
+      });
+    });
+
+    describe('when given a None', () => {
+      it('should return true', () => {
+        expect(
+          pipe(
+            Maybes.None<number>(),
+            Maybes.isNone()
+          )
+        ).toBeTruthy();
       });
     });
   });
 
-  describe('when using unless', () => {
-    it('should filter out when the predicate is true', () => {
-      expect(Maybes.unless(x => x === 'hello')(Maybes.Some('hello')).isNone()).toBeTruthy;
-    });
-
-    it('should not filter out when predicate is false', () => {
-      const result = Maybes.unless(x => x === 'hello')(Maybes.Some('world'));
-
-      expect(result.isSome()).toBeTruthy;
-      expect(result.some()).toBe('world');
+  describe('some', () => {
+    it('should get the value', () => {
+      expect(
+        pipe(
+          Maybes.Some(123),
+          Maybes.some()
+        )
+      ).toEqual(123);
     });
   });
 
-  describe('when creating a maybe from a predicate', () => {
-    describe('when the condition is true', () => {
-      it('should return a some', () => {
-        const result = Maybes.fromPredicate(_.isString, 'test');
+  describe('fromNull/of', () => {
+    it('should create a Maybe', () => {
+      const maybe1 = Maybes.fromNull('hello');
+      const maybe2 = Maybes.fromNull('');
+      const maybe3 = Maybes.fromNull(123);
+      const maybe4 = Maybes.fromNull(0);
+      const maybe5 = Maybes.fromNull(null);
+      const maybe6 = Maybes.fromNull(undefined);
 
-        expect(result.isSome()).toBeTruthy;
-        expect(result.some()).toBe('test');
-      });
-    });
-
-    describe('when the condition is false', () => {
-      it('should return a none', () => {
-        const result = Maybes.fromPredicate(_.isString, 123);
-
-        expect(result.isNone()).toBeTruthy;
-      });
-    });
-  });
-
-  describe('when creating a maybe from a number', () => {
-    describe('when the condition is true', () => {
-      it('should return a some', () => {
-        const result = Maybes.fromNumber(123);
-
-        expect(result.isSome()).toBeTruthy;
-        expect(result.some()).toBe(123);
-      });
-    });
-
-    describe('when the condition is false', () => {
-      it('should return a none', () => {
-        expect(Maybes.fromNumber(NaN).isNone()).toBeTruthy;
-        expect(Maybes.fromNumber('test').isNone()).toBeTruthy;
-      });
+      expect(maybe1.isSome()).toBeTruthy();
+      expect(maybe1.some()).toEqual('hello');
+      expect(maybe2.isSome()).toBeTruthy();
+      expect(maybe2.some()).toEqual('');
+      expect(maybe3.isSome()).toBeTruthy();
+      expect(maybe3.some()).toEqual(123);
+      expect(maybe4.isSome()).toBeTruthy();
+      expect(maybe4.some()).toEqual(0);
+      expect(maybe5.isNone()).toBeTruthy();
+      expect(maybe6.isNone()).toBeTruthy();
     });
   });
 
-  describe('when combining maybes with other maybes', () => {
-    describe('when all maybes are somes', () => {
-      it('should return the correct values', () => {
-        const result = Maybes.combineWith(Maybes.Some(123), Maybes.Some(555))(Maybes.Some('abc'));
+  describe('isEqualTo', () => {
+    it('should correctly compare values', () => {
+      const obj = { x: 4 };
 
-        expect(result.isSome()).toBeTruthy;
-        expect(result.some()).toEqual(['abc', 123, 555]);
-      });
+      expect(
+        pipe(
+          Maybes.None<typeof obj>(),
+          Maybes.isEqualTo(obj)
+        )
+      ).toBeFalsy();
+
+      expect(
+        pipe(
+          Maybes.Some({ x: 4 }),
+          Maybes.isEqualTo(obj)
+        )
+      ).toBeFalsy();
+
+      expect(
+        pipe(
+          Maybes.Some(obj),
+          Maybes.isEqualTo(obj)
+        )
+      ).toBeTruthy();
     });
+  });
 
-    describe('when all maybes are not somes', () => {
-      it('should return the none', () => {
-        const result = Maybes.combineWith(Maybes.Some(123), Maybes.None())(Maybes.Some('abc'));
+  describe('isEqualWith', () => {
+    it('should correctly compare values', () => {
+      const obj = { x: 4 };
 
-        expect(result.isSome()).toBe(false);
-      });
+      expect(
+        pipe(
+          Maybes.None<typeof obj>(),
+          Maybes.isEqualWith(() => obj)
+        )
+      ).toBeFalsy();
+
+      expect(
+        pipe(
+          Maybes.Some({ x: 4 }),
+          Maybes.isEqualWith(() => obj)
+        )
+      ).toBeFalsy();
+
+      expect(
+        pipe(
+          Maybes.Some(obj),
+          Maybes.isEqualWith(() => obj)
+        )
+      ).toBeTruthy();
+    });
+  });
+
+  describe('matchesTo', () => {
+    it('should correctly compare values', () => {
+      const obj = { x: 4 };
+
+      expect(
+        pipe(
+          Maybes.None<typeof obj>(),
+          Maybes.matchesTo(obj)
+        )
+      ).toBeFalsy();
+
+      expect(
+        pipe(
+          Maybes.Some({ x: 3 }),
+          Maybes.matchesTo(obj)
+        )
+      ).toBeFalsy();
+
+      expect(
+        pipe(
+          Maybes.Some({ x: 4 }),
+          Maybes.matchesTo(obj)
+        )
+      ).toBeTruthy();
+
+      expect(
+        pipe(
+          Maybes.Some(obj),
+          Maybes.matchesTo(obj)
+        )
+      ).toBeTruthy();
+    });
+  });
+
+  describe('matchesWith', () => {
+    it('should correctly compare values', () => {
+      const obj = { x: 4 };
+
+      expect(
+        pipe(
+          Maybes.None<typeof obj>(),
+          Maybes.matchesWith(() => obj)
+        )
+      ).toBeFalsy();
+
+      expect(
+        pipe(
+          Maybes.Some({ x: 3 }),
+          Maybes.matchesWith(() => obj)
+        )
+      ).toBeFalsy();
+
+      expect(
+        pipe(
+          Maybes.Some({ x: 4 }),
+          Maybes.matchesWith(() => obj)
+        )
+      ).toBeTruthy();
+
+      expect(
+        pipe(
+          Maybes.Some(obj),
+          Maybes.matchesWith(() => obj)
+        )
+      ).toBeTruthy();
+    });
+  });
+
+  describe('same', () => {
+    it('should correctly compare Maybes', () => {
+      const comparer = jest.fn((a, b) => a.length === b.length);
+
+      const result1 = Maybes.same(comparer, Maybes.None(), Maybes.None());
+      expect(comparer).toBeCalledTimes(0);
+      expect(result1).toBeTruthy();
+
+      const result2 = Maybes.same(comparer, Maybes.Some('abc'), Maybes.None());
+      expect(comparer).toBeCalledTimes(0);
+      expect(result2).toBeFalsy();
+
+      const result3 = Maybes.same(comparer, Maybes.Some('abc'), Maybes.Some('defg'));
+      expect(comparer).toBeCalledWith('abc', 'defg');
+      expect(result3).toBeFalsy();
+
+      const result4 = Maybes.same(comparer, Maybes.Some('abc'), Maybes.Some('def'));
+      expect(comparer).toBeCalledWith('abc', 'def');
+      expect(result4).toBeTruthy();
+    });
+  });
+
+  describe('equals', () => {
+    it('should correctly compare Maybes', () => {
+      const obj = { x: 4 };
+
+      expect(Maybes.equals(Maybes.None(), Maybes.None())).toBeTruthy();
+      expect(Maybes.equals(Maybes.Some(obj), Maybes.None())).toBeFalsy();
+      expect(Maybes.equals(Maybes.Some(obj), Maybes.Some({ x: 4 }))).toBeFalsy();
+      expect(Maybes.equals(Maybes.Some(obj), Maybes.Some(obj))).toBeTruthy();
+    });
+  });
+
+  describe('fromPredicate', () => {
+    it('should create a Maybe', () => {
+      const result1 = Maybes.fromPredicate(Array.isArray, undefined);
+      const result2 = Maybes.fromPredicate(Array.isArray, null);
+      const result3 = Maybes.fromPredicate(Array.isArray, 'test');
+      const result4 = Maybes.fromPredicate(Array.isArray, ['test']);
+
+      expect(result1.isNone()).toBeTruthy();
+      expect(result2.isNone()).toBeTruthy();
+      expect(result3.isNone()).toBeTruthy();
+      expect(result4.isSome()).toBeTruthy();
+      expect(result4.some()).toEqual(['test']);
+    });
+  });
+
+  describe('fromNaN', () => {
+    it('should create a numeric Maybe', () => {
+      const result1 = Maybes.fromNaN(undefined);
+      const result2 = Maybes.fromNaN(null);
+      const result3 = Maybes.fromNaN(NaN);
+      const result4 = Maybes.fromNaN(Infinity);
+      const result5 = Maybes.fromNaN(Number.NEGATIVE_INFINITY);
+      const result6 = Maybes.fromNaN(Number.POSITIVE_INFINITY);
+      const result7 = Maybes.fromNaN('test');
+      const result8 = Maybes.fromNaN(123);
+
+      expect(result1.isNone()).toBeTruthy();
+      expect(result2.isNone()).toBeTruthy();
+      expect(result3.isNone()).toBeTruthy();
+      expect(result4.isNone()).toBeTruthy();
+      expect(result5.isNone()).toBeTruthy();
+      expect(result6.isNone()).toBeTruthy();
+      expect(result7.isNone()).toBeTruthy();
+      expect(result8.isSome()).toBeTruthy();
+      expect(result8.some()).toEqual(123);
     });
   });
 });

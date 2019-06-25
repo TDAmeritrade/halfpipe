@@ -46,7 +46,9 @@ export function get<K, V>(key: K): (map: Map<K, V>) => Maybe<V> {
  * );
  * ```
  */
-export const size = (() => property<Map<any, any>, number>('size')) as <K, V>() => (map: Map<K, V>) => number;
+export const size = (() => property<Map<any, any>, number>('size')) as <K, V>(
+  noArg?: never
+) => (map: Map<K, V>) => number;
 
 /**
  * Gets the keys of the map.
@@ -61,7 +63,7 @@ export const size = (() => property<Map<any, any>, number>('size')) as <K, V>() 
  * );
  * ```
  */
-export function keys<K, V>(): (map: Map<K, V>) => K[] {
+export function keys<K, V>(noArg?: never): (map: Map<K, V>) => K[] {
   return map => [...map.keys()];
 }
 
@@ -78,7 +80,7 @@ export function keys<K, V>(): (map: Map<K, V>) => K[] {
  * );
  * ```
  */
-export function values<K, V>(): (map: Map<K, V>) => V[] {
+export function values<K, V>(noArg?: never): (map: Map<K, V>) => V[] {
   return map => [...map.values()];
 }
 
@@ -95,7 +97,7 @@ export function values<K, V>(): (map: Map<K, V>) => V[] {
  * );
  * ```
  */
-export function entries<K, V>(): (map: Map<K, V>) => [K, V][] {
+export function entries<K, V>(noArg?: never): (map: Map<K, V>) => [K, V][] {
   return map => [...map.entries()];
 }
 

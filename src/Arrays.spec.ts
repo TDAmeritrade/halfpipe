@@ -358,7 +358,7 @@ describe('Arrays', () => {
           ['a', 'b', 'c'],
           Arrays.join()
         )
-      ).toEqual('abc');
+      ).toEqual('a,b,c');
 
       expect(
         pipe(

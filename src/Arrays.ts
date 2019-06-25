@@ -143,7 +143,7 @@ export function get<T>(index: number | ((arr: T[]) => number)): (array: T[]) => 
  * );
  * ```
  */
-export function getFirst<T>(): (array: T[]) => Maybe<T> {
+export function getFirst<T>(noArg?: never): (array: T[]) => Maybe<T> {
   return array => Maybe.fromNull(first(array));
 }
 
@@ -157,7 +157,7 @@ export function getFirst<T>(): (array: T[]) => Maybe<T> {
  * );
  * ```
  */
-export function getLast<T>(): (array: T[]) => Maybe<T> {
+export function getLast<T>(noArg?: never): (array: T[]) => Maybe<T> {
   return array => Maybe.fromNull(last(array));
 }
 
@@ -171,7 +171,7 @@ export function getLast<T>(): (array: T[]) => Maybe<T> {
  * );
  * ```
  */
-export function size<T>(): (array: T[]) => number {
+export function size<T>(noArg?: never): (array: T[]) => number {
   return array => array.length;
 }
 
@@ -199,7 +199,7 @@ export function find<T>(fn: (val: T, index: number, arr: T[]) => boolean): (arra
  * );
  * ```
  */
-export function reverse<T>(): (array: T[]) => T[] {
+export function reverse<T>(noArg?: never): (array: T[]) => T[] {
   return array => [...array].reverse();
 }
 
@@ -293,7 +293,7 @@ export const forEach = createInvoker<any[], 'forEach', void>('forEach') as <T>(
 ) => (array: T[]) => void;
 
 /**
- * Concatenates one or more array with a given array.
+ * Concatenates one or more arrays with a given array.
  * @param arrays - one or more array to add to the array
  * @returns the concatenated array
  * ```typescript
@@ -335,7 +335,7 @@ export const from = Array.from;
  * )
  * ```
  */
-export const isArray = () => Array.isArray;
+export const isArray = (noArg?: never) => Array.isArray;
 /**
  * Returns a new array from a set of elements.
  * @param items - A set of elements to include in the new array object.

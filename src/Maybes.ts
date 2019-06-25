@@ -359,9 +359,9 @@ export const flatMap = createInvoker<Maybe<any>, 'flatMap', Maybe<any>>('flatMap
  * );
  * ```
  */
-export const orNull = createInvoker<Maybe<any>, 'orNull', any | null>('orNull') as <T>() => (
-  maybe: Maybe<T>
-) => T | null;
+export const orNull = createInvoker<Maybe<any>, 'orNull', any | null>('orNull') as <T>(
+  noArg?: never
+) => (maybe: Maybe<T>) => T | null;
 
 /**
  * Gets the value of the Maybe or undefined.
@@ -378,9 +378,9 @@ export const orNull = createInvoker<Maybe<any>, 'orNull', any | null>('orNull') 
  * );
  * ```
  */
-export const orUndefined = createInvoker<Maybe<any>, 'orUndefined', any | undefined>('orUndefined') as <T>() => (
-  maybe: Maybe<T>
-) => T | undefined;
+export const orUndefined = createInvoker<Maybe<any>, 'orUndefined', any | undefined>('orUndefined') as <T>(
+  noArg?: never
+) => (maybe: Maybe<T>) => T | undefined;
 
 /**
  * Converts a Some into a Right, or a None into a Left of the provided left value.
@@ -454,7 +454,9 @@ export const orElse = createInvoker<Maybe<any>, 'orElse', Maybe<any>>('orElse') 
  * );
  * ```
  */
-export const isSome = createInvoker<Maybe<any>, 'isSome', boolean>('isSome') as <T>() => (maybe: Maybe<T>) => boolean;
+export const isSome = createInvoker<Maybe<any>, 'isSome', boolean>('isSome') as <T>(
+  noArg?: never
+) => (maybe: Maybe<T>) => boolean;
 
 /**
  * Checks whether or not the given Maybe is a None.
@@ -466,7 +468,9 @@ export const isSome = createInvoker<Maybe<any>, 'isSome', boolean>('isSome') as 
  * );
  * ```
  */
-export const isNone = createInvoker<Maybe<any>, 'isNone', boolean>('isNone') as <T>() => (maybe: Maybe<T>) => boolean;
+export const isNone = createInvoker<Maybe<any>, 'isNone', boolean>('isNone') as <T>(
+  noArg?: never
+) => (maybe: Maybe<T>) => boolean;
 
 /**
  * Gets the value of a Some.
@@ -478,7 +482,7 @@ export const isNone = createInvoker<Maybe<any>, 'isNone', boolean>('isNone') as 
  * );
  * ```
  */
-export const some = createInvoker<Maybe<any>, 'some', any>('some') as <T>() => (maybe: Maybe<T>) => T;
+export const some = createInvoker<Maybe<any>, 'some', any>('some') as <T>(noArg?: never) => (maybe: Maybe<T>) => T;
 
 /**
  * Creates a Maybe from a potentially nullable source.
@@ -520,11 +524,11 @@ export const isEqualTo = partial(isEqualToUsing, eq) as <T>(val: T) => (maybe: M
  * ```typescript
  * pipe(
  *   Maybes.Some('abc'),
- *   Maybes.isEqualToWith(() => 'abc') // -> true
+ *   Maybes.isEqualWith(() => 'abc') // -> true
  * );
  * ```
  */
-export const isEqualToWith = partial(isEqualToUsingWith, eq) as <T>(val: () => T) => (maybe: Maybe<T>) => boolean;
+export const isEqualWith = partial(isEqualToUsingWith, eq) as <T>(val: () => T) => (maybe: Maybe<T>) => boolean;
 
 /**
  * Performs a deep equality on the value of a Maybe and the given value.
@@ -533,11 +537,11 @@ export const isEqualToWith = partial(isEqualToUsingWith, eq) as <T>(val: () => T
  * ```typescript
  * pipe(
  *   Maybes.Some({ x: 1 }),
- *   Maybes.matches({ x: 1 }) // -> true
+ *   Maybes.matchesTo({ x: 1 }) // -> true
  * );
  * ```
  */
-export const matches = partial(isEqualToUsing, _isEqual) as <T>(val: T) => (maybe: Maybe<T>) => boolean;
+export const matchesTo = partial(isEqualToUsing, _isEqual) as <T>(val: T) => (maybe: Maybe<T>) => boolean;
 
 /**
  * Performs a deep equality on the value of a Maybe and the result of the given function.
@@ -559,13 +563,13 @@ export const matchesWith = partial(isEqualToUsingWith, _isEqual) as <T>(val: () 
  * @param b - a Maybe to compare
  * @returns true if both Maybes are Nones, or both Maybes are Somes and contain the same value as determined by the comparer
  * ```typescript
- * Maybes.isEqualWith((a, b) => a.length === b.length, Maybes.Some('abc'), Maybes.Some('def')); // -> true
- * Maybes.isEqualWith((a, b) => a.length === b.length, Maybes.Some('abc'), Maybes.Some('test')); // -> false
- * Maybes.isEqualWith((a, b) => a.length === b.length, Maybes.Some('abc'), Maybes.None()); // -> false
- * Maybes.isEqualWith((a, b) => a.length === b.length, Maybes.None(), Maybes.None()); // -> true
+ * Maybes.same((a, b) => a.length === b.length, Maybes.Some('abc'), Maybes.Some('def')); // -> true
+ * Maybes.same((a, b) => a.length === b.length, Maybes.Some('abc'), Maybes.Some('test')); // -> false
+ * Maybes.same((a, b) => a.length === b.length, Maybes.Some('abc'), Maybes.None()); // -> false
+ * Maybes.same((a, b) => a.length === b.length, Maybes.None(), Maybes.None()); // -> true
  * ```
  */
-export function isEqualWith<T>(comparer: (v1: T, v2: T) => boolean, a: Maybe<T>, b: Maybe<T>): boolean {
+export function same<T>(comparer: (v1: T, v2: T) => boolean, a: Maybe<T>, b: Maybe<T>): boolean {
   return a === b || (a.isNone() && b.isNone()) || (a.isSome() && b.isSome() && comparer(a.some(), b.some()));
 }
 
@@ -575,13 +579,13 @@ export function isEqualWith<T>(comparer: (v1: T, v2: T) => boolean, a: Maybe<T>,
  * @param b - a Maybe to compare
  * @returns true if both Maybes contain the same value, or both Maybes are a None
  * ```typescript
- * Maybes.isEqual(Maybes.Some(123), Maybes.Some(123)); // -> true
- * Maybes.isEqual(Maybes.Some({ x: 'a' }), Maybes.Some({ x: 'a' })); // -> false
- * Maybes.isEqual(Maybes.Some(123), Maybes.None()); // -> false
- * Maybes.isEqual(Maybes.None(), Maybes.None()); // -> true
+ * Maybes.equals(Maybes.Some(123), Maybes.Some(123)); // -> true
+ * Maybes.equals(Maybes.Some({ x: 'a' }), Maybes.Some({ x: 'a' })); // -> false
+ * Maybes.equals(Maybes.Some(123), Maybes.None()); // -> false
+ * Maybes.equals(Maybes.None(), Maybes.None()); // -> true
  * ```
  */
-export const isEqual = partial(isEqualWith, eq) as <T>(a: Maybe<T>, b: Maybe<T>) => boolean;
+export const equals = partial(same, eq) as <T>(a: Maybe<T>, b: Maybe<T>) => boolean;
 
 /**
  * Creates a Maybe if the value successfully passes the predicate.

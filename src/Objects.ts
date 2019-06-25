@@ -32,7 +32,7 @@ export function get<T extends object>(key: keyof T): (obj: T) => Maybe<T[typeof 
  * );
  * ```
  */
-export function keys<T extends object>(): (obj: T) => (keyof T)[] {
+export function keys<T extends object>(noArg?: never): (obj: T) => (keyof T)[] {
   return obj => Object.keys(obj) as (keyof T)[];
 }
 
@@ -46,7 +46,7 @@ export function keys<T extends object>(): (obj: T) => (keyof T)[] {
  * );
  * ```
  */
-export function values<T extends object>(): (obj: T) => T[keyof T][] {
+export function values<T extends object>(noArg?: never): (obj: T) => T[keyof T][] {
   return obj => _values(obj);
 }
 
@@ -60,7 +60,7 @@ export function values<T extends object>(): (obj: T) => T[keyof T][] {
  * );
  * ```
  */
-export function entries<T extends object>(): (obj: T) => [keyof T, T[keyof T]][] {
+export function entries<T extends object>(noArg?: never): (obj: T) => [keyof T, T[keyof T]][] {
   return obj => _entries(obj) as any;
 }
 

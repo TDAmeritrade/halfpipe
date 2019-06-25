@@ -88,7 +88,7 @@ export function combine<E, T>(err: E): (eithers: Either<E, T>[]) => Either<E, T[
  * );
  * ```
  */
-export function orThrow<Error, T>(): (either: Either<Error, T>) => T {
+export function orThrow<Error, T>(noArg?: never): (either: Either<Error, T>) => T {
   return cata<Error, T, any>(
     error => {
       throw error;
@@ -112,7 +112,7 @@ export function orThrow<Error, T>(): (either: Either<Error, T>) => T {
  * );
  * ```
  */
-export function toValue<L, R>(): (either: Either<L, R>) => L | R {
+export function toValue<L, R>(noArg?: never): (either: Either<L, R>) => L | R {
   return either => (either.isLeft() ? either.left() : either.right());
 }
 
@@ -237,9 +237,9 @@ export const bimap = createInvoker<Either<any, any>, 'bimap', Either<any, any>>(
  * );
  * ```
  */
-export const isLeft = createInvoker<Either<any, any>, 'isLeft', boolean>('isLeft') as <L, R>() => (
-  either: Either<L, R>
-) => boolean;
+export const isLeft = createInvoker<Either<any, any>, 'isLeft', boolean>('isLeft') as <L, R>(
+  noArg?: never
+) => (either: Either<L, R>) => boolean;
 
 /**
  * Unwraps the left value if it exists.
@@ -251,7 +251,9 @@ export const isLeft = createInvoker<Either<any, any>, 'isLeft', boolean>('isLeft
  * );
  * ```
  */
-export const left = createInvoker<Either<any, any>, 'left', any>('left') as <L, R>() => (either: Either<L, R>) => L;
+export const left = createInvoker<Either<any, any>, 'left', any>('left') as <L, R>(
+  noArg?: never
+) => (either: Either<L, R>) => L;
 
 /**
  * Checks whether or not the given Either is a Right.
@@ -263,9 +265,9 @@ export const left = createInvoker<Either<any, any>, 'left', any>('left') as <L, 
  * );
  * ```
  */
-export const isRight = createInvoker<Either<any, any>, 'isRight', boolean>('isRight') as <L, R>() => (
-  either: Either<L, R>
-) => boolean;
+export const isRight = createInvoker<Either<any, any>, 'isRight', boolean>('isRight') as <L, R>(
+  noArg?: never
+) => (either: Either<L, R>) => boolean;
 
 /**
  * Unwraps the right value if it exists.
@@ -277,7 +279,9 @@ export const isRight = createInvoker<Either<any, any>, 'isRight', boolean>('isRi
  * );
  * ```
  */
-export const right = createInvoker<Either<any, any>, 'right', any>('right') as <L, R>() => (either: Either<L, R>) => R;
+export const right = createInvoker<Either<any, any>, 'right', any>('right') as <L, R>(
+  noArg?: never
+) => (either: Either<L, R>) => R;
 
 /**
  * Converts an Either into a Maybe by dropping the Left side and converting into a None.
@@ -294,9 +298,9 @@ export const right = createInvoker<Either<any, any>, 'right', any>('right') as <
  * );
  * ```
  */
-export const toMaybe = createInvoker<Either<any, any>, 'toMaybe', Maybe<any>>('toMaybe') as <L, R>() => (
-  either: Either<L, R>
-) => Maybe<R>;
+export const toMaybe = createInvoker<Either<any, any>, 'toMaybe', Maybe<any>>('toMaybe') as <L, R>(
+  noArg?: never
+) => (either: Either<L, R>) => Maybe<R>;
 
 /**
  * Swaps the sides of an Either.
@@ -314,9 +318,9 @@ export const toMaybe = createInvoker<Either<any, any>, 'toMaybe', Maybe<any>>('t
  * );
  * ```
  */
-export const swap = createInvoker<Either<any, any>, 'swap', Either<any, any>>('swap') as <L, R>() => (
-  either: Either<L, R>
-) => Either<R, L>;
+export const swap = createInvoker<Either<any, any>, 'swap', Either<any, any>>('swap') as <L, R>(
+  noArg?: never
+) => (either: Either<L, R>) => Either<R, L>;
 
 /**
  * Performs a flatMap on both sides of an Either.
