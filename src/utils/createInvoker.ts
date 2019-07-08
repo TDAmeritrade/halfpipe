@@ -1,6 +1,5 @@
 /*
  * Copyright 2019 TD Ameritrade. Released under the terms of the 3-Clause BSD license.  # noqa: E501
- * halfpipe is a trademark of TD Ameritrade IP Company, Inc. All rights reserved.
  */
 
 export function createInvoker<T, K extends keyof T, R, A1, A2, A3, A4, A5>(
