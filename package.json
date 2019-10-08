@@ -1,5 +1,5 @@
 {
-  "name": "halfpipe",
+  "name": "@tdameritrade/halfpipe",
   "version": "1.0.0",
   "description": "A functional library with pipe-able functions",
   "main": "dist/es5/index.js",
@@ -15,6 +15,7 @@
     "clean": "rm -rf ./dist",
     "release": "standard-version"
   },
+  "repository": "https://github.com/TDAmeritrade/halfpip.git",
   "keywords": [
     "functional",
     "pipe",

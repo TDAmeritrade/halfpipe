@@ -4,7 +4,7 @@ Halfpipe is a functional programming library containing a pipe function, composa
 
 ## Install Instructions:
 
-`npm install halfpipe`
+`npm install @tdameritrade/halfpipe`
 
 ## Usage:
 
