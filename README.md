@@ -22,7 +22,7 @@ Functions are split into "namespaces" that operate on specific types of entities
 To use, import the `pipe` function as well as the desired namespaces:
 
 ```typescript
-import { pipe, Objects } from 'halfpipe';
+import { pipe, Objects } from '@tdameritrade/halfpipe';
 
 const myObj = {
   x: 2,
@@ -40,7 +40,7 @@ const hasZ = pipe(
 All functions are immutable:
 
 ```typescript
-import { pipe, Arrays } from 'halfpipe';
+import { pipe, Arrays } from '@tdameritrade/halfpipe';
 
 const myArr = [1, 2, 3];
 
@@ -56,7 +56,7 @@ const reversedArr = pipe(
 Functions can easily be composed:
 
 ```typescript
-import { pipe, Arrays, Objects } from 'halfpipe';
+import { pipe, Arrays, Objects } from '@tdameritrade/halfpipe';
 
 const myArr = [{ x: 2 }, { x: 3, y: 4 }, { y: 4 }];
 
@@ -71,7 +71,7 @@ const allHaveX = pipe(
 All functions that can return a potentially `null`/`undefined` value will return a `Maybe` instead:
 
 ```typescript
-import { pipe, Arrays, Objects, Maybes } from 'halfpipe';
+import { pipe, Arrays, Objects, Maybes } from '@tdameritrade/halfpipe';
 
 const myArr = [{ x: 1 }, { x: 4, y: 3 }, { x: 1, y: 2 }];
 

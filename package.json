@@ -15,7 +15,7 @@
     "clean": "rm -rf ./dist",
     "release": "standard-version"
   },
-  "repository": "https://github.com/TDAmeritrade/halfpip.git",
+  "repository": "https://github.com/TDAmeritrade/halfpipe.git",
   "keywords": [
     "functional",
     "pipe",
