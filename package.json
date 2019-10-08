@@ -1,6 +1,6 @@
 {
   "name": "@tdameritrade/halfpipe",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A functional library with pipe-able functions",
   "main": "dist/es5/index.js",
   "scripts": {
