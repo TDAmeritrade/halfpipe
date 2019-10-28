@@ -1,4 +1,6 @@
 # halfpipe
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FTDAmeritrade%2Fhalfpipe.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2FTDAmeritrade%2Fhalfpipe?ref=badge_shield)
+
 
 Halfpipe is a functional programming library containing a pipe function, composable and pipe-able functions, and monadic constructs.
 
@@ -84,3 +86,7 @@ const firstXWithY = pipe(
 
 // firstXWithY === 4
 ```
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FTDAmeritrade%2Fhalfpipe.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2FTDAmeritrade%2Fhalfpipe?ref=badge_large)
